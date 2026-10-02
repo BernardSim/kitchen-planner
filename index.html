@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>家 Kitchen Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <div class="eyebrow">FAMILY HOUSEHOLD</div>
+      <h1>家 Kitchen Planner</h1>
+      <p>Meals, top-ups and helper coordination in one place.</p>
+    </div>
+    <div class="mode-switch" aria-label="Role view">
+      <button id="parentModeBtn" class="active">Parent</button>
+      <button id="helperModeBtn">Helper</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="cloudAuth" class="auth-strip card"><div><b id="cloudStatus">Local mode</b><div class="shop-source" id="cloudDetail">This browser stores household data locally.</div></div><div id="loginControls" class="auth-controls hidden"><input id="loginEmail" type="email" placeholder="Email"><input id="loginPassword" type="password" placeholder="Password"><button id="loginBtn" class="primary">Sign in</button></div><button id="logoutBtn" class="secondary hidden">Sign out</button></section>
+    <div id="notice" class="notice hidden" role="status"></div>
+    <section id="parentApp">
+      <nav class="tabs" id="parentTabs">
+        <button data-tab="plan" class="active">Plan</button>
+        <button data-tab="inventory">Inventory</button>
+        <button data-tab="shopping">Shopping</button>
+        <button data-tab="feedback">Feedback</button>
+        <button data-tab="party">Dinner Party</button>
+        <button data-tab="settings">Family</button>
+      </nav>
+
+      <section id="tab-plan" class="tab-panel">
+        <div class="grid two">
+          <article class="card">
+            <div class="section-title-row"><h2>Next week</h2><span id="weekBadge" class="badge"></span></div>
+            <label>Anthropic API key <input id="apiKey" type="password" autocomplete="off" placeholder="sk-ant-… (not stored)" /></label>
+            <div class="form-row">
+              <label>Week starting <input id="weekStart" type="date" /></label>
+              <label>Chinese dinners target <select id="chineseTarget"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+            </div>
+            <label>Family request <input id="mealRequestText" placeholder="e.g. ramen once, beef on Friday" /></label>
+            <button id="addRequestBtn" class="secondary">Add request</button>
+            <div id="requestList" class="chip-list"></div>
+            <div class="action-row">
+              <button id="generateBtn" class="primary">Generate draft week</button>
+              <button id="approveBtn" class="success hidden">Approve week</button>
+            </div>
+            <p class="hint">Generation uses preferences, stock, recent meals and ratings. Approval creates the final shopping workflow.</p>
+          </article>
+          <article class="card compact">
+            <h2>Planning signals</h2>
+            <div id="planningSignals" class="summary-grid"></div>
+          </article>
+        </div>
+        <div id="planStatus" class="approval-banner hidden"></div>
+        <div id="weeklyPlan" class="meal-grid empty-state">Generate a draft to see next week's meals.</div>
+      </section>
+
+      <section id="tab-inventory" class="tab-panel hidden">
+        <div class="grid two">
+          <article class="card">
+            <h2>Add / update item</h2>
+            <div class="form-row"><label>Name <input id="inventoryName" placeholder="Eggs" /></label><label>Domain <select id="inventoryDomain"><option value="food">Food</option><option value="household">Household</option></select></label></div>
+            <div class="form-row"><label>Status <select id="inventoryStatus"><option value="plenty">Plenty</option><option value="low">Low</option><option value="out">Out</option></select></label><label>Quantity <input id="inventoryQty" type="number" min="0" step="1" placeholder="optional" /></label></div>
+            <button id="inventorySaveBtn" class="primary">Save item</button>
+          </article>
+          <article class="card"><h2>Household inbox</h2><div id="parentInbox"></div></article>
+        </div>
+        <div id="inventoryLists" class="grid two"></div>
+      </section>
+
+      <section id="tab-shopping" class="tab-panel hidden">
+        <article class="card">
+          <div class="section-title-row"><h2>Approved-week shopping</h2><span class="badge">persistent</span></div>
+          <p class="hint">Routes can be changed between helper purchase, online delivery and already at home.</p>
+          <div id="shoppingList"></div>
+        </article>
+      </section>
+
+      <section id="tab-feedback" class="tab-panel hidden">
+        <article class="card"><h2>Meal feedback</h2><p class="hint">Rate meals after they are served. Ratings influence future suggestions.</p><div id="feedbackMeals"></div></article>
+      </section>
+
+      <section id="tab-party" class="tab-panel hidden">
+        <div class="grid two">
+          <article class="card">
+            <h2>Dinner Party Planner</h2>
+            <label>Anthropic API key <input id="partyApiKey" type="password" placeholder="Uses same key; not stored" /></label>
+            <div class="form-row"><label>Guests <input id="partyGuests" type="number" min="2" value="8" /></label><label>Party date <input id="partyDate" type="date" /></label></div><label>Cuisine <select id="partyCuisine"><option>Chinese</option><option>Japanese</option><option>Italian</option><option>French</option><option>Western</option><option>Surprise me</option></select></label>
+            <label>Dietary notes <input id="partyDietary" placeholder="No shellfish, vegetarian guest…" /></label>
+            <label>Special requests <textarea id="partyNotes" rows="3" placeholder="Birthday, showstopper main…"></textarea></label>
+            <button id="partyGenerateBtn" class="primary">Plan dinner party</button>
+          </article>
+          <article class="card compact"><h2>Party output</h2><p class="hint">Menu, shopping, prep timeline and helper instructions are generated together.</p></article>
+        </div>
+        <div id="partyResults"></div>
+      </section>
+
+      <section id="tab-settings" class="tab-panel hidden">
+        <article class="card"><h2>Family profiles</h2><p class="hint">Comma-separate likes/dislikes. Child spice tolerance should remain “none” for non-spicy planning.</p><div id="familyProfiles"></div></article>
+      </section>
+    </section>
+
+    <section id="helperApp" class="hidden">
+      <nav class="tabs" id="helperTabs">
+        <button data-htab="dashboard" class="active">Today</button><button data-htab="stock">Stock</button><button data-htab="shopping">Shopping</button><button data-htab="meals">Meals</button><button data-htab="inbox">Inbox</button>
+      </nav>
+      <section id="htab-dashboard" class="helper-panel"><div id="helperDashboard" class="grid two"></div></section>
+      <section id="htab-stock" class="helper-panel hidden">
+        <article class="card"><h2>Quick top-up</h2><div class="form-row"><label>Item <input id="helperTopUpName" placeholder="Toilet cleaner" /></label><label>Type <select id="helperTopUpDomain"><option value="household">Household</option><option value="food">Food</option></select></label></div><label>Preferred purchase <select id="helperTopUpRoute"><option value="helper_buys">I can buy</option><option value="online_delivery">Online delivery</option></select></label><button id="helperTopUpBtn" class="primary big">Add top-up</button></article>
+        <div id="helperStock"></div>
+      </section>
+      <section id="htab-shopping" class="helper-panel hidden"><article class="card"><h2>Shopping list</h2><div id="helperShopping"></div></article></section>
+      <section id="htab-meals" class="helper-panel hidden"><div id="helperMeals"></div></section>
+      <section id="htab-inbox" class="helper-panel hidden"><article class="card"><h2>Household note</h2><textarea id="helperNoteText" rows="4" placeholder="Eggs low, still have one pack of salmon…"></textarea><button id="helperNoteBtn" class="primary big">Send note</button><div id="helperInbox"></div></article></section>
+    </section>
+  </main>
+  <footer>家 Kitchen Planner v1 · Data is stored in this browser only until shared cloud sync is configured.</footer>
+  <script src="config.js"></script>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
